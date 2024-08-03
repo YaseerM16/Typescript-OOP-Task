@@ -1,0 +1,377 @@
+<!-- src/views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Banking App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .card {
+            display: inline-block;
+            padding: 20px;
+            margin: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 150px;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>
+            <%= message %>
+        </h1>
+        <div class="card">
+            <h3>Create Account</h3>
+            <button onclick="showCreateAccountAlert()">Create</button>
+        </div>
+        <div class="card">
+            <h3>Deposit</h3>
+            <button onclick="showDepositAlert()">Deposit</button>
+        </div>
+        <div class="card">
+            <h3>Check Balance</h3>
+            <button onclick="showCheckBalanceAlert()">Check</button>
+        </div>
+        <div class="card">
+            <h3>Withdraw</h3>
+            <button onclick="showWithdrawAlert()">Withdraw</button>
+        </div>
+    </div>
+</body>
+<script>
+    function showCreateAccountAlert() {
+        Swal.fire({
+            title: "Create Account",
+            html: `
+      <form id="createAccountForm">
+        <label for="accountNumber">Account&nbsp;Number:</label>
+        <input type="text" id="accountNumber" class="swal2-input" placeholder="Account Number" required>
+        <label for="balance">Initial&nbsp;Balance:</label>
+        <input type="number" id="balance" class="swal2-input" placeholder="Initial Balance" required>
+
+        <label for="type">Account&nbsp;Type:</label>
+        <select id="type" class="swal2-input" required>
+          <option value="savings">Savings</option>
+          <option value="checking">Checking</option>
+        </select>
+
+        <label for="customerName">Customer&nbsp;Name:</label>
+        <input type="text" id="customerName" class="swal2-input" placeholder="Customer Name" required>
+
+        <label for="address">Address:</label>
+        <input type="text" id="address" class="swal2-input" placeholder="Address" required>
+      </form>
+    `,
+            showCancelButton: true,
+            confirmButtonText: "Submit",
+            preConfirm: () => {
+                const accountNumber =
+                    Swal.getPopup().querySelector("#accountNumber").value;
+                const balance = Swal.getPopup().querySelector("#balance").value;
+                const type = Swal.getPopup().querySelector("#type").value;
+                const customerName =
+                    Swal.getPopup().querySelector("#customerName").value;
+                const address = Swal.getPopup().querySelector("#address").value;
+                if (
+                    !accountNumber ||
+                    !balance ||
+                    !type ||
+                    !customerName ||
+                    !address
+                ) {
+                    Swal.showValidationMessage(`Please fill out all fields`);
+                }
+                return {
+                    accountNumber: accountNumber,
+                    balance: balance,
+                    type: type,
+                    customerName: customerName,
+                    address: address,
+                };
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const data = {
+                    accountNumber: result.value.accountNumber,
+                    balance: result.value.balance,
+                    type: result.value.type,
+                    customerName: result.value.customerName,
+                    address: result.value.address,
+                };
+
+                fetch("/create-account", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        Swal.fire(
+                            "Account Created!",
+                            `
+            Account Number: ${result.value.accountNumber} <br>
+            Initial Balance: ${result.value.balance} <br>
+            Account Type: ${result.value.type} <br>
+            Customer Name: ${result.value.customerName} <br>
+            Address: ${result.value.address}
+          `,
+                            "success"
+                        );
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        Swal.fire(
+                            "Error",
+                            "There was an error creating the account.",
+                            "error"
+                        );
+                    });
+            }
+        });
+    }
+
+    function showDepositAlert() {
+        Swal.fire({
+            title: "Deposit",
+            html: `
+            <input type="text" id="accountNo" class="swal2-input" placeholder="Account No">
+            <input type="number" id="amount" class="swal2-input" placeholder="Amount">
+        `,
+            showCancelButton: true,
+            confirmButtonText: "Submit",
+            preConfirm: () => {
+                const accountNo = Swal.getPopup().querySelector("#accountNo").value;
+                const amount = Swal.getPopup().querySelector("#amount").value;
+                if (!accountNo || !amount) {
+                    Swal.showValidationMessage(`Please enter both fields`);
+                }
+                return { accountNo: accountNo, amount: parseInt(amount) };
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const data = {
+                    accountNumber: result.value.accountNo,
+                    amount: result.value.amount
+                };
+
+                console.log("AccNo in Data :", typeof data.accountNumber);
+                console.log("Amount in Data :", typeof data.amount);
+
+
+                fetch("/deposit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log(data);
+
+                        Swal.fire({
+                            title: "Deposit Successful!",
+                            html: `
+                            <div style="text-align: left; font-size: 1.1em; color: #4a4a4a; line-height: 1.6;">
+                                <div style="margin-bottom: 8px;">
+                                    <strong style="display: inline-block; width: 100px;">Account No:</strong>
+                                    <span style="font-weight: 600;">${data.accountNo}</span>
+                                </div>
+                                <div>
+                                    <strong style="display: inline-block; width: 100px;">Amount:</strong>
+                                    <span style="font-weight: 600;">Rs. ${parseInt(data.amount).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `,
+                            icon: "success",
+                            confirmButtonText: "Close",
+                            confirmButtonColor: "#3085d6",
+                            background: "#f9f9f9",
+                            customClass: {
+                                popup: 'border-radius-5'
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        Swal.fire(
+                            "Error",
+                            "There was an error processing the deposit.",
+                            "error"
+                        );
+                    });
+            }
+        });
+    }
+
+
+    function showCheckBalanceAlert() {
+        Swal.fire({
+            title: "Check Balance",
+            html: `
+          <input type="text" id="accountNo" class="swal2-input" placeholder="Account No">
+        `,
+            showCancelButton: true,
+            confirmButtonText: "Submit",
+            preConfirm: () => {
+                const accountNo = Swal.getPopup().querySelector("#accountNo").value;
+                if (!accountNo) {
+                    Swal.showValidationMessage(`Please enter your Account No`);
+                }
+                return { accountNo: accountNo };
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const accountNo = result.value.accountNo;
+                console.log("AccountNo :", accountNo);
+
+                fetch(`/check-balance?accountNumber=${accountNo}`)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        console.log("Data From the GET balanc req :", data);
+                        Swal.fire({
+                            title: "Balance Checked!",
+                            html: `
+        <div style="text-align: left; font-size: 1.1em; color: #4a4a4a; line-height: 1.6;">
+            <div style="margin-bottom: 8px;">
+                <strong style="display: inline-block; width: 100px;">Account No:</strong>
+                <span style="font-weight: 600;">${accountNo}</span>
+            </div>
+            <div>
+                <strong style="display: inline-block; width: 100px;">Balance:</strong>
+                <span style="font-weight: 600;">Rs. ${parseInt(
+                                data.Balance
+                            ).toFixed(2)}</span>
+            </div>
+        </div>
+    `,
+                            icon: "success",
+                            confirmButtonText: "Close",
+                            confirmButtonColor: "#3085d6",
+                            background: "#f9f9f9",
+                            customClass: {
+                                popup: "border-radius-5",
+                            },
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        Swal.fire(
+                            "Error",
+                            "There was an error checking the balance.",
+                            "error"
+                        );
+                    });
+            }
+        });
+    }
+
+    function showWithdrawAlert() {
+        Swal.fire({
+            title: "Withdraw",
+            html: `
+            <input type="text" id="accountNo" class="swal2-input" placeholder="Account No">
+            <input type="number" id="amount" class="swal2-input" placeholder="Amount">
+        `,
+            showCancelButton: true,
+            confirmButtonText: "Submit",
+            preConfirm: () => {
+                const accountNo = Swal.getPopup().querySelector("#accountNo").value;
+                const amount = Swal.getPopup().querySelector("#amount").value;
+                if (!accountNo || !amount) {
+                    Swal.showValidationMessage(`Please enter both fields`);
+                }
+                return { accountNo: accountNo, amount: parseInt(amount) };
+            },
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const data = {
+                    accountNumber: result.value.accountNo,
+                    amount: result.value.amount
+                };
+
+                fetch("/withdraw", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        Swal.fire({
+                            title: "Withdraw Successful!",
+                            html: `
+                            <div style="text-align: left; font-size: 1.1em; color: #4a4a4a; line-height: 1.6;">
+                                <div style="margin-bottom: 8px;">
+                                    <strong style="display: inline-block; width: 100px;">Account No:</strong>
+                                    <span style="font-weight: 600;">${data.accountNo}</span>
+                                </div>
+                                <div>
+                                    <strong style="display: inline-block; width: 100px;">Amount:</strong>
+                                    <span style="font-weight: 600;">Rs. ${parseInt(data.amount).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `,
+                            icon: "success",
+                            confirmButtonText: "Close",
+                            confirmButtonColor: "#3085d6",
+                            background: "#f9f9f9",
+                            customClass: {
+                                popup: 'border-radius-5'
+                            }
+                        });
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                        Swal.fire(
+                            "Error",
+                            "There was an error processing the withdrawal.",
+                            "error"
+                        );
+                    });
+            }
+        });
+    }
+
+</script>
+
+</html>

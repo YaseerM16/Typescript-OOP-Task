@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Account Details</title>
+</head>
+
+<body>
+    <h1>Account Details</h1>
+    <p>Account Number: <%= account.getAccountNumber() %>
+    </p>
+    <p>Balance: <%= account.getBalance() %>
+    </p>
+    <% if (account instanceof CheckingAccount) { %>
+        <p>Overdraft Limit: <%= account.getOverdraftLimit() %>
+        </p>
+        <% } else if (account instanceof SavingsAccount) { %>
+            <p>Interest Rate: <%= account.getInterestRate() %>
+            </p>
+            <% } %>
+</body>
+
+</html>
