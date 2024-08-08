@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc --watch",
-    "start": "node dest/src/app.js",
+    "build": "tsc",
+    "start": "node dest/app.js",
     "dev": "npm run build && npm run start"
   },
   "keywords": [],
