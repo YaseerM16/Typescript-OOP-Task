@@ -14,7 +14,7 @@ app.set('view engine', 'ejs');
 app.set('views', './views');
 
 app.get('/', (req: Request, res: Response) => {
-  res.render('index',{ message: "Welcome to Our Bank !!" });
+  res.render('index', { message: "Welcome to Our Bank !!" });
 });
 // app.get('/', (req: Request, res: Response) => {
 //   res.render('create-account', { title: 'Create Account' });
@@ -29,21 +29,21 @@ app.post('/create-account', (req: Request, res: Response) => {
 app.post('/deposit', (req: Request, res: Response) => {
   const { accountNumber, amount } = req.body;
   bank.deposit(accountNumber, amount);
-  res.json({accountNo:accountNumber,amount : amount})
+  res.json({ accountNo: accountNumber, amount: amount })
 });
 
 app.post('/withdraw', (req: Request, res: Response) => {
   const { accountNumber, amount } = req.body;
   bank.withdraw(accountNumber, amount);
-  res.json({accountNo:accountNumber,amount : amount})
+  res.json({ accountNo: accountNumber, amount: amount })
 });
 
 app.get('/check-balance', (req: Request, res: Response) => {
   const { accountNumber } = req.query;
   const balance = bank.getBalance(accountNumber as string);
-  res.json({Balance: balance});
+  res.json({ Balance: balance });
 });
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+app.listen(5000, () => {
+  console.log('Server started on port 5000');
 });
