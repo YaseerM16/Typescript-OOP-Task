@@ -45,5 +45,5 @@ app.get('/check-balance', (req: Request, res: Response) => {
 });
 
 app.listen(5000, () => {
-  console.log('Server started on port 5000');
+  console.log('Server st  arted on port 5000');
 });
